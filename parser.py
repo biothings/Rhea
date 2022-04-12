@@ -5,36 +5,28 @@ import xml.etree.ElementTree as ET
 
 def rp_name_func(description):
     node = description.find("rh:name", ns)
-    if node is None:
-        pass
-    else:
+    if node is not None:
         rp_name = node.text
         return rp_name
 
 
 def rp_formula_func(description):
     node = description.find("rh:formula", ns)
-    if node is None:
-        pass
-    else:
+    if node is not None:
         rp_formula = node.text
         return rp_formula
 
 
 def rp_charge_func(description):
     node = description.find("rh:charge", ns)
-    if node is None:
-        pass
-    else:
+    if node is not None:
         rp_charge = node.text
         return rp_charge
 
 
 def rp_chebi_func(description):
     node = description.find("rh:chebi", ns)
-    if node is None:
-        pass
-    else:
+    if node is not None:
         rp_chebi = node.attrib["{http://www.w3.org/1999/02/22-rdf-syntax-ns#}resource"].lstrip("http://purl.obolibrary.org/obo/").replace("_", ":")
         return rp_chebi
 
@@ -46,7 +38,7 @@ def add_reactive_part(description):
         if comp_num == compound.get("comp_num"):
             comp_index = compound_lib.index(compound)
     if comp_index is None:
-        print("Assigning reactive part to compound entry not made yet")
+        raise ValueError("Assigning reactive part to compound entry not made yet")
     else:
         reactive_part = {}
         rp_name = rp_name_func(description)
@@ -62,31 +54,23 @@ def add_reactive_part(description):
 
 def compound_name(comp_entry):
     node = description.find("rh:name", ns)
-    if node is None:
-        pass
-    else:
+    if node is not None:
         compound_name = node.text
         comp_entry["name"] = compound_name
 
 
 def compound_formula(comp_entry):
     node = description.find("rh:formula", ns)
-    if node is None:
-        pass
-    else:
+    if node is not None:
         formula = node.text
-        if formula is None:
-            pass
-        else:
+        if formula is not None:
             formula = formula.rstrip("<i><sub>n</sub></i>")
             comp_entry["formula"] = formula
 
 
 def compound_charge(comp_entry):
     node = description.find("rh:charge", ns)
-    if node is None:
-        pass
-    else:
+    if node is not None:
         compound_charge = node.text.rstrip("<i><sub>n</sub></i>")
         comp_entry["charge"] = compound_charge
 
@@ -187,42 +171,32 @@ def gather_participant_data(description):
 
 def rhea_equation(rhea_entry):
     node = description.find("rh:equation", ns)
-    if node is None:
-        pass
-    else:
+    if node is not None:
         rhea_entry["equation"] = node.text
 
 
 def is_transport(rhea_entry):
     node = description.find("rh:isTransport", ns)
-    if node is None:
-        pass
-    else:
+    if node is not None:
         rhea_entry["is_transport"] = node.text
 
 
 def ec_link(rhea_entry):
     node = description.find("rh:ec", ns)
-    if node is None:
-        pass
-    else:
+    if node is not None:
         rhea_entry["ec_link"] = node.attrib["{http://www.w3.org/1999/02/22-rdf-syntax-ns#}resource"]
         rhea_entry["ec_id"] = rhea_entry["ec_link"].lstrip("http://purl.uniprot.org/enzyme/")    
 
 
 def status(rhea_entry):
     node = description.find("rh:status", ns)
-    if node is None:
-        pass
-    else:
+    if node is not None:
         rhea_entry["status"] = node.attrib["{http://www.w3.org/1999/02/22-rdf-syntax-ns#}resource"].lstrip("http://rdf.rhea-db.org/")
 
 
 def citations(rhea_entry):
     node = description.findall("rh:citation", ns)
-    if bool(node) is False:
-        pass
-    else:
+    if bool(node) is not False:
         rhea_entry["citations"] = []
         citations = node
         for citation in citations:
@@ -232,9 +206,7 @@ def citations(rhea_entry):
 
 
 def gather_children_rheas(rhea_entry):
-    if description.find("rh:directionalReaction", ns) is None:
-        pass
-    else:
+    if description.find("rh:directionalReaction", ns) is not None:
         rhea_entry["children_rheas"] = []
         child_rheas = description.findall("rh:directionalReaction", ns)
         for child_rhea in child_rheas:
@@ -245,7 +217,7 @@ def gather_children_rheas(rhea_entry):
         rhea_entry["children_rheas"].append(child_rhea_name)        
 
 
-#Fills rhea dictionaries
+#Fills rhea entries
 def gather_rhea_data(rhea_id):
     rhea_entry = {}
     rhea_entry["rhea_id"] = rhea_id
