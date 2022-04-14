@@ -251,8 +251,10 @@ def gather_rhea_data(rhea_id):
     
 #datafolder supplied by manifest.json. Using ElementTree rhea.rdf is collapsed into a hierarchy of tags with associated information accessed
 #with .find() and .findall() functions. The first for loop catches compound entries and adds the associated information in a dictionary form 
-#to a list contained in compound_lib. The second for loop finds rhea entry-associated information (finding more detailed compound information
-#from compound_lib) and yields it.
+#to a list contained in compound_lib. The second for loop finds the first rhea entry of a set of 4 (see children_rheas) and gathers this info
+#and adds it to rhea_lib. Compounds involved in the reaction are found and then added using gather_participant_data() which consults compound_lib. 
+#Once a rhea of a new set is encountered the last rhea entry is removed and returned from rhea_lib and yielded. The very last entry is yielded
+#once the loop terminates.
 def load_annotations(data_folder):
     rhea_rdf = open(data_folder + "/rhea.rdf", "r")
     tree = ET.parse(rhea_rdf)
@@ -290,6 +292,7 @@ def load_annotations(data_folder):
                 continue   
             
     #Loop for yielding rhea_entries 
+    rhea_lib = []
     for description in root.findall("rdf:Description", ns):
         node = description.find("rh:accession", ns)
         if node is None:
@@ -302,8 +305,11 @@ def load_annotations(data_folder):
         elif "RHEA:" in node.text:
             first_entry_test = description.find("rh:substrates", ns) == None and description.find("rh:substratesOrProducts", ns) == None
             if first_entry_test:
+                if len(rhea_lib) != 0:
+                    yield rhea_lib.pop()
                 rhea_id = node.text
                 rhea_entry = gather_rhea_data(rhea_id)
-                yield rhea_entry
         else:
             continue
+    if len(rhea_lib) != 0:
+        yield rhea_lib.pop()
