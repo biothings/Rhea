@@ -2,6 +2,7 @@ import re
 import xml.etree.ElementTree as ET
 
 
+#Adds name key and associated value to compounds with reactive parts
 def rp_name_func(description):
     node = description.find("rh:name", ns)
     if node is not None:
@@ -9,6 +10,7 @@ def rp_name_func(description):
         return rp_name
 
 
+#Adds formula key and associated value to compounds with reactive parts
 def rp_formula_func(description):
     node = description.find("rh:formula", ns)
     if node is not None:
@@ -16,6 +18,7 @@ def rp_formula_func(description):
         return rp_formula
 
 
+#Adds charge key and associated value to compounds with reactive parts    
 def rp_charge_func(description):
     node = description.find("rh:charge", ns)
     if node is not None:
@@ -23,6 +26,7 @@ def rp_charge_func(description):
         return rp_charge
 
 
+#Adds chebi key and associated id to compounds with reactive parts    
 def rp_chebi_func(description):
     node = description.find("rh:chebi", ns)
     if node is not None:
@@ -30,6 +34,7 @@ def rp_chebi_func(description):
         return rp_chebi
 
 
+#Adds reactive part information to the list associated with the key "reactive_parts" to compounds with this annoted
 def add_reactive_part(description):
     comp_num = re.sub(pattern = r"_rp\d", repl = "", string = rp).lstrip("Compound_")
     comp_index = None
@@ -51,13 +56,15 @@ def add_reactive_part(description):
         compound_lib[comp_index]["reactive_parts"].append(reactive_part)
 
 
+#Adds name key and id to compound entries       
 def compound_name(comp_entry):
     node = description.find("rh:name", ns)
     if node is not None:
         compound_name = node.text
         comp_entry["name"] = compound_name
 
-
+        
+#Adds formula key and value to compound entries  
 def compound_formula(comp_entry):
     node = description.find("rh:formula", ns)
     if node is not None:
@@ -66,7 +73,8 @@ def compound_formula(comp_entry):
             formula = formula.rstrip("<i><sub>n</sub></i>")
             comp_entry["formula"] = formula
 
-
+            
+#Adds charge key and value to compound entries  
 def compound_charge(comp_entry):
     node = description.find("rh:charge", ns)
     if node is not None:
@@ -74,7 +82,7 @@ def compound_charge(comp_entry):
         comp_entry["charge"] = compound_charge
 
 
-#Fills chebi library with chebi entries
+#Supplies chebi compound entries for compound_lib
 def gather_chebi_data(comp_num):
     comp_entry = {}
     comp_entry["comp_num"] = comp_num
@@ -86,6 +94,7 @@ def gather_chebi_data(comp_num):
     return comp_entry        
 
 
+#supplies generic compound entries for compound_lib
 def gather_generic_data(comp_num):
     generic_entry = {}
     generic_entry["comp_num"] = comp_num
@@ -98,6 +107,7 @@ def gather_generic_data(comp_num):
     return generic_entry
 
 
+#Supplies polymer compound entries for compound_lib
 def gather_poly_data(comp_num):
     poly_entry = {}
     poly_entry["comp_num"] = comp_num
@@ -109,7 +119,7 @@ def gather_poly_data(comp_num):
     return poly_entry    
 
 
-#Produces a list of all children tags of the one description
+#Produces a list of all children tags of the one description e.g. "rh:name", "rh:formula", etc.
 def gather_children_tags(description):
     children_tags = []
     children = description.findall("*")
@@ -118,6 +128,7 @@ def gather_children_tags(description):
     return children_tags
 
 
+#Adds positional information for compounds to rhea entries that specify a transport reaction
 def if_transport(comp_num, compound_entry):
     location_in = "in" in comp_num
     location_out = "out" in comp_num
@@ -128,7 +139,8 @@ def if_transport(comp_num, compound_entry):
     else:
         pass
 
-
+    
+#Adds compound entries from compound_lib to the list associated with the key "side_l" or "side_r" of the rhea entry
 def add_side(rhea_index, compound_num, stoich, side):
     comp_num = compound_num.group(1)
     rhea_lib[rhea_index][side].append({})
@@ -141,7 +153,7 @@ def add_side(rhea_index, compound_num, stoich, side):
                     compound_entry.update(comp)
 
 
-#used with descriptions of reaction sides to extract compound numbers and stoichiometry
+#Used when description is of a reaction sides to extract compound numbers and stoichiometry
 def gather_participant_data(description):
     children_tags = gather_children_tags(description)
     pattern = "{http://rdf.rhea-db.org/}contains[1-9]"
@@ -168,31 +180,36 @@ def gather_participant_data(description):
                 continue
 
 
+#Adds equation key and associated value to rhea entry                
 def rhea_equation(rhea_entry):
     node = description.find("rh:equation", ns)
     if node is not None:
         rhea_entry["equation"] = node.text
 
-
+        
+#Adds is_transport key and associated boolean to rhea entry
 def is_transport(rhea_entry):
     node = description.find("rh:isTransport", ns)
     if node is not None:
         rhea_entry["is_transport"] = node.text
 
 
+#Adds ec_link and ec_id keys and associated values to rhea entry        
 def ec_link(rhea_entry):
     node = description.find("rh:ec", ns)
     if node is not None:
         rhea_entry["ec_link"] = node.attrib["{http://www.w3.org/1999/02/22-rdf-syntax-ns#}resource"]
         rhea_entry["ec_id"] = rhea_entry["ec_link"].lstrip("http://purl.uniprot.org/enzyme/")    
 
-
+        
+#Adds status key and associated value to rhea entry. 3 possible values: Approved, Preliminary, Obsolete
 def status(rhea_entry):
     node = description.find("rh:status", ns)
     if node is not None:
         rhea_entry["status"] = node.attrib["{http://www.w3.org/1999/02/22-rdf-syntax-ns#}resource"].lstrip("http://rdf.rhea-db.org/")
 
-
+        
+#Adds citations key and associated values in a list to rhea entry. Some entries will have no citations and thus no citations key
 def citations(rhea_entry):
     node = description.findall("rh:citation", ns)
     if bool(node) is not False:
@@ -203,7 +220,8 @@ def citations(rhea_entry):
             citation = "PMID:" + citation
             rhea_entry["citations"].append(citation)                   
 
-
+            
+#Adds the children_rheas key and list of associated rhea ids (should be 3) to rhea entry
 def gather_children_rheas(rhea_entry):
     if description.find("rh:directionalReaction", ns) is not None:
         rhea_entry["children_rheas"] = []
@@ -216,7 +234,7 @@ def gather_children_rheas(rhea_entry):
         rhea_entry["children_rheas"].append(child_rhea_name)        
 
 
-#Fills rhea entries
+#Fills rhea entries with associated information
 def gather_rhea_data(rhea_id):
     rhea_entry = {}
     rhea_entry["rhea_id"] = rhea_id
@@ -231,6 +249,12 @@ def gather_rhea_data(rhea_id):
     return rhea_entry           
     
     
+#datafolder supplied by manifest.json. Using ElementTree rhea.rdf is collapsed into a hierarchy of tags with associated information accessed
+#with .find() and .findall() functions. The first for loop catches compound entries and adds the associated information in a dictionary form 
+#to a list contained in compound_lib. The second for loop finds the first rhea entry of a set of 4 (see children_rheas) and gathers this info
+#and adds it to rhea_lib. Compounds involved in the reaction are found and then added using gather_participant_data() which consults compound_lib. 
+#Once a rhea of a new set is encountered the last rhea entry is removed and returned from rhea_lib and yielded. The very last entry is yielded
+#once the loop terminates.
 def load_annotations(data_folder):
     rhea_rdf = open(data_folder + "/rhea.rdf", "r")
     tree = ET.parse(rhea_rdf)
@@ -268,6 +292,7 @@ def load_annotations(data_folder):
                 continue   
             
     #Loop for yielding rhea_entries 
+    rhea_lib = []
     for description in root.findall("rdf:Description", ns):
         node = description.find("rh:accession", ns)
         if node is None:
@@ -280,8 +305,11 @@ def load_annotations(data_folder):
         elif "RHEA:" in node.text:
             first_entry_test = description.find("rh:substrates", ns) == None and description.find("rh:substratesOrProducts", ns) == None
             if first_entry_test:
+                if len(rhea_lib) != 0:
+                    yield rhea_lib.pop()
                 rhea_id = node.text
                 rhea_entry = gather_rhea_data(rhea_id)
-                yield rhea_entry
         else:
             continue
+    if len(rhea_lib) != 0:
+        yield rhea_lib.pop()
