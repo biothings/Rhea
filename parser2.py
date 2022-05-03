@@ -103,7 +103,7 @@ class ReactivePartDataFactory:
 
 class SideDataFactory:
     """
-    Each reaction description specifies its two side ("L" for left, "R" for right). E.g.
+    Each reaction specifies its two side ("L" for left, "R" for right). E.g.
 
         <rdf:Description rdf:about="http://rdf.rhea-db.org/35975">
             # some other tags ignored
@@ -114,7 +114,7 @@ class SideDataFactory:
             <rh:side rdf:resource="http://rdf.rhea-db.org/35975_R"/>
         </rdf:Description>
 
-    Each side description specifies a "contains" relationship for each compound participating. E.g.
+    Each side description specifies a "contains" relationship for each participating compound. E.g.
 
         <rdf:Description rdf:about="http://rdf.rhea-db.org/35975_R">
             <rh:contains rdf:resource="http://rdf.rhea-db.org/Participant_35975_compound_3512"/>
@@ -122,7 +122,7 @@ class SideDataFactory:
         </rdf:Description>
 
     Note that "rh:contains" only specifies containing without stoichiometry. "rh:contains1" indicates a containing
-    relationship comes with stoichiometry 1.
+    relationship along with stoichiometry 1.
 
     Therefore from this side description we derive the following associations:
 
@@ -179,7 +179,7 @@ class SideDataFactory:
         - "containsNplus1", and
         - "containsNminus1"
 
-        There stoichiometry's datatype must be string.
+        Therefore stoichiometry's datatype must be string.
         """
         return tag.lstrip(cls.contains_prefix)
 
