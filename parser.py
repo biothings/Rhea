@@ -526,8 +526,11 @@ def load_annotations(data_folder):
         compound_lib[comp_num].setdefault("reactive_parts", []).append(rp_entry)
 
     for rhea_id, side_key, comp_num, participation_entry in side_associations:
+        compound_entry = compound_lib[comp_num]
+        del compound_entry["comp_num"]
+
         side_component = {
-            **compound_lib[comp_num],  # the "participant"
+            **compound_entry,  # the "participant"
             **participation_entry  # describes how this compound partipates in the reaction
         }
         reaction_lib[rhea_id].setdefault(side_key, []).append(side_component)
