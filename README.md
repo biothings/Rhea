@@ -109,8 +109,8 @@ erDiagram
         str status
         list citations "list of PMID strings"
         list children_rheas "list of RHEA ID strings"
-        list side_l "list of side components"
-        list side_r "list of side components"
+        list side_l "list of left side components"
+        list side_r "list of right side components"
     }
 
     side_component {
