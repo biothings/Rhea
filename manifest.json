@@ -1,5 +1,10 @@
 {
     "version": "0.1",
+    "__metadata__": {
+        "url": "https://www.rhea-db.org/",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "license": "CC BY 4.0"
+    },
     "dumper": {
         "data_url": ["https://ftp.expasy.org/databases/rhea/rdf/rhea.rdf.gz"],
         "uncompress": true,
