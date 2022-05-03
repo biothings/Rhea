@@ -533,6 +533,6 @@ def load_annotations(data_folder):
         reaction_lib[rhea_id].setdefault(side_key, []).append(side_component)
 
     for reaction_entry in reaction_lib.values():
-        reaction_entry["_id"] = reaction_entries["rhea_id"]
-        del reaction_entries["rhea_id"]
+        reaction_entry["_id"] = reaction_entry["rhea_id"]
+        del reaction_entry["rhea_id"]
         yield reaction_entry
